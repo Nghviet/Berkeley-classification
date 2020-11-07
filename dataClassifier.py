@@ -76,9 +76,43 @@ def enhancedFeatureExtractorDigit(datum):
     ##
     """
     features =  basicFeatureExtractorDigit(datum)
+    def thicken(x,y):
+        if x < 0 or x >= DIGIT_DATUM_WIDTH or y < 0 or y >= DIGIT_DATUM_HEIGHT:
+            return
+        if features[(x,y)] is 2:
+            return
+        if features[(x,y)] is 0:
+            features[(x,y)] = 2
+            return
+        features[(x,y)] = 2
+        thicken(x+1,y)
+        thicken(x-1,y)
+        thicken(x,y+1)
+        thicken(x,y-1)
 
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    for i in range(1):
+        for x in range(DIGIT_DATUM_WIDTH):
+            for y in range(DIGIT_DATUM_HEIGHT):
+                if features[(x,y)] is 1:
+                    thicken(x,y)
+
+        for x in range(DIGIT_DATUM_WIDTH):
+            if y in range(DIGIT_DATUM_HEIGHT):
+                if features[(x,y)] is 2:
+                    features[(x,y)] = 1
+
+    def overflow(x,y):
+        if x < 0 or x >= DIGIT_DATUM_WIDTH or y < 0 or y >= DIGIT_DATUM_HEIGHT:
+            return
+        if features[(x,y)] is 2:
+            return
+        if features[(x,y)] is 1:
+            return
+        features[(x,y)] = 2
+        overflow(x+1,y)
+        overflow(x-1,y)
+        overflow(x,y+1)
+        overflow(x,y-1)
 
     return features
 
@@ -124,7 +158,36 @@ def enhancedPacmanFeatures(state, action):
     """
     features = util.Counter()
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    state = state.generateSuccessor(0,action)
+    x,y = state.getPacmanPosition()
+    foodCount = state.getFood().count()
+    ghostStates = []
+    minGhostDist = int(1e9+7)
+    minScaredGhostDist = int(1e9 + 7)
+    minFoodDist = int(1e9+7)
+
+    for ghost in state.getGhostStates():
+        gX,gY = ghost.getPosition()
+        if ghost.scaredTimer > 0:
+            ghostStates.append(ghost)
+            minScaredGhostDist = min(minScaredGhostDist, abs(x-gX) + abs(y-gY))
+        minGhostDist = min(minGhostDist, abs(x - gX) + abs(y - gY))
+
+    for food in state.getFood().asList():
+        fX,fY = food
+        minFoodDist = min(minFoodDist, abs(x - fX) + abs(y - fY))
+    if foodCount is 0:
+        minFoodDist = 0
+
+    if minScaredGhostDist is int(1e9+7):
+        minScaredGhostDist = 0
+
+    minFoodDist += foodCount * 10
+    features['foodCount'] = foodCount
+    features['hunt'] = len(ghostStates)
+    features['minGhostDist'] = minGhostDist
+    features['minScaredGhostDist'] = minScaredGhostDist
+    features['score'] = foodCount - minFoodDist + len(ghostStates) * 20 - minScaredGhostDist
     return features
 
 
@@ -144,6 +207,7 @@ def enhancedFeatureExtractorFace(datum):
     return features
 
 def analysis(classifier, guesses, testLabels, testData, rawTestData, printImage):
+    printImage
     """
     This function is called after learning.
     Include any code that you want here to help you analyze your results.
