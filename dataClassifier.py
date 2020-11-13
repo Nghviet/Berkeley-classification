@@ -90,7 +90,7 @@ def enhancedFeatureExtractorDigit(datum):
         thicken(x,y+1)
         thicken(x,y-1)
 
-    for i in range(1):
+    for i in range(0):
         for x in range(DIGIT_DATUM_WIDTH):
             for y in range(DIGIT_DATUM_HEIGHT):
                 if features[(x,y)] is 1:
@@ -113,6 +113,48 @@ def enhancedFeatureExtractorDigit(datum):
         overflow(x-1,y)
         overflow(x,y+1)
         overflow(x,y-1)
+
+    def kill(x,y):
+        if x < 0 or x >= DIGIT_DATUM_WIDTH or y < 0 or y >= DIGIT_DATUM_HEIGHT:
+            return
+        if features[(x,y)] is not 0:
+            return
+        features[(x,y)] = 2
+        kill(x+1,y)
+        kill(x-1,y)
+        kill(x,y+1)
+        kill(x,y-1)
+
+    region = []
+
+    for x in range(DIGIT_DATUM_WIDTH):
+        for y in range(DIGIT_DATUM_HEIGHT):
+            if features[(x,y)] is 0:
+                region.append((x,y))
+                kill(x,y)
+
+    for x in range(DIGIT_DATUM_WIDTH):
+        for y in range(DIGIT_DATUM_HEIGHT):
+            if features[(x,y)] is 2:
+                features[(x,y)] = 0
+
+    if len(region) > 1:
+        features['loop'] = 1
+    else :
+        features['loop'] = 0
+
+    upper = 0
+    total = 0
+    for x in range(DIGIT_DATUM_WIDTH):
+        for y in range(DIGIT_DATUM_HEIGHT):
+            if features[(x,y)] is 1 and y < DIGIT_DATUM_HEIGHT / 2 + 1:
+                upper = upper + 1
+            total = total + features[(x,y)]
+
+    if upper >= total * 0.6:
+        features["upper"] = 1
+    else:
+        features["upper"] = 0
 
     return features
 
