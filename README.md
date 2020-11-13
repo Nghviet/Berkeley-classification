@@ -23,9 +23,26 @@ Giống bài 1 nhưng đổi cách cập nhật weight
 # Bài 4:
 
 Bổ sung thêm 2 features
-Lôp
 
-# Bài 8:
-Kiểm tra đích : khi vị trí của pacman năm trong food list của trò chơi
+Loop : Xài floodfill để tìm xem số region của 0 > 1 nghĩa là có loop
 
-Tìm kiếm : BFS chạy và max điểm, DFS chưa test
+Upper : các pixel tập trung lên phía trên hơn 60% tổng số pixel
+
+# Bài 5:
+
+Thay vì tự viết function cho predict, xài classify và lấy ra action được predict đầu tiên
+
+
+# Bài 6:
+
+Các features được chọn
+
+foodCount : số lượng food còn lại
+
+hunt : số ghost trong trạng thái scared
+
+minGhostDist : khoảng cách đến ghost ngắn nhất
+
+minScaredGhostDist :  khoảng cách đến ghost trong trạng thái scared ngắn nhất
+
+score : heuristic cho optimize
